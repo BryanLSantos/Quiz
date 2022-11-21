@@ -1,0 +1,19 @@
+{
+  "name": "arduinoconjavascript",
+  "version": "1.0.0",
+  "description": "arduino que funciona con javascript para detectar 6 botones y mandar esa señal a js",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2",
+    "johnny-five": "^2.1.0",
+    "serial": "^0.0.9",
+    "serialport": "^10.4.0",
+    "socket.io": "^4.5.3",
+    "socketio": "^1.0.0"
+  }
+}
