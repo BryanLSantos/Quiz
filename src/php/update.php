@@ -11,7 +11,7 @@
 
         // $sql = "SELECT * FROM `pregunta` WHERE idrespuesta = (SELECT id FROM `respuesta` WHERE respuesta = '{$id}')";
 
-        $sql = "UPDATE pregunta SET answered = 0 WHERE id = $id";
+        $sql = "UPDATE pregunta SET answered = 1 WHERE id = $id";
 
         if($result = $conexion->query($sql)){
             $data['status'] = 'Hecho';
@@ -27,7 +27,7 @@
 
         // $sql = "SELECT * FROM `pregunta` WHERE idrespuesta = (SELECT id FROM `respuesta` WHERE respuesta = '{$id}')";
 
-        $sql = "UPDATE pregunta SET answered = 0 WHERE id =(SELECT respuesta.idpregunta from respuesta WHERE respuesta.id = $id)";
+        $sql = "UPDATE pregunta SET answered = 1 WHERE id =(SELECT respuesta.idpregunta from respuesta WHERE respuesta.id = $id)";
 
         if($result = $conexion->query($sql)){
             $data['status'] = 'Hecho';

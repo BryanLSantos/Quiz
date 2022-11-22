@@ -2,6 +2,7 @@ var contador = 1;
 var errores = 0;
 var aciertos = 0;
 var score = 0;
+
 function contar() {
     $.ajax({
 
@@ -15,6 +16,17 @@ function contar() {
             getPregunta(idpregunta, conteo);
         }
     });
+}
+
+function reset() {
+    console.log("REINICIO");
+    // $.ajax({
+    //     url: 'http://localhost/quiz/src/php/reset.php',
+    //     type: 'GET',
+    //     success: function (response) {
+    //         console.log(response);
+    //     }
+    // });
 }
 
 function getPregunta(id, conteo) {
@@ -34,13 +46,6 @@ function getPregunta(id, conteo) {
         document.getElementById('exampleModalLabelBody').innerHTML = 'Llegaste al final y se acabo 🥺😞👌';
         $('#exampleModal').modal('show');
     }
-    
-    // if (aciertos == 5 || errores == 3) {
-        
-    //     $('#exampleModal').modal('show');
-    //     // while (aciertos == 5 || errores == 3) {
-    //     // }
-    // }
 
     $.ajax({
         type: 'POST',
@@ -139,12 +144,12 @@ function answered(id) {
                     });
                 }
                 else {
-                    console.log('RESPUESTA CORRECTA')
+                    let id = pregunta['id'];
                     contador++;
                     aciertos++;
                     score = score + 150;
 
-                    update(pregunta['id']);
+                    update(id);
 
                     $.ajax({
                         url: 'http://localhost/quiz/src/php/contar.php',
@@ -165,6 +170,7 @@ function answered(id) {
 }
 
 function update(id) {
+    console.log("update");
     $.ajax({
         type: 'POST',
         url: 'http://localhost/quiz/src/php/update.php',
@@ -173,7 +179,7 @@ function update(id) {
             id: id
         },
         success: function (response) {
-            // console.log(response);
+            console.log(response);
             // var pregunta = JSON.parse(response);
         }
     });

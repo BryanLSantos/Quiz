@@ -41,7 +41,7 @@
           Variably
         </a>
         <form class="d-flex">
-          <button class="btn btn-outline-success" type="submit">Reiniciar</button>
+          <button class="btn btn-outline-success" type="button" onclick="reset();">Reiniciar</button>
         </form>
       </div>
     </nav>
@@ -107,11 +107,6 @@
       </div>
     </div>
 
-    <!-- Button trigger modal -->
-    <!-- <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
-  Launch demo modal
-</button> -->
-
     <!-- Modal -->
     <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
       aria-hidden="false">
@@ -126,7 +121,7 @@
           <div class="modal-body" id="exampleModalLabelBody" style="color: black; font-family: Rubik;">
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Reset</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="reset();">Reset</button>
             <!-- <button type="button" class="btn btn-primary">Save changes</button> -->
           </div>
         </div>
