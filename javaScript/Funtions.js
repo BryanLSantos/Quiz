@@ -4,23 +4,44 @@ var aciertos = 0;
 var score = 0;
 function contar() {
     $.ajax({
+
         url: 'http://localhost/quiz/src/php/contar.php',
         type: 'GET',
         success: function (response) {
             var conteo = JSON.parse(response);
-            // console.log(conteo);
 
             var idpregunta = Math.floor(Math.random() * (conteo['conteo'])) + 1;
 
-            // console.log(idpregunta);
-            document.getElementById("numPregunta").innerHTML = "Pregunta " + contador;
-
-            getPregunta(idpregunta);
+            getPregunta(idpregunta, conteo);
         }
     });
 }
 
-function getPregunta(id) {
+function getPregunta(id, conteo) {
+
+    if (aciertos == 5) {
+        document.getElementById('exampleModalLabel').innerHTML = 'FELICIDADES';
+        document.getElementById('exampleModalLabelBody').innerHTML = 'Felicidades, ganaste el Quiz, eres un Genio 😎👍🔥 \n YOU SCORE: ' + score;
+        $('#exampleModal').modal('show');
+    }
+    else if (errores == 3) {
+        document.getElementById('exampleModalLabel').innerHTML = 'LO SIENTO';
+        document.getElementById('exampleModalLabelBody').innerHTML = 'No eres tan listo como esperabamos 🥺😞👌';
+        $('#exampleModal').modal('show');
+    }
+    else if (contador == 8) {
+        document.getElementById('exampleModalLabel').innerHTML = 'LO SIENTO';
+        document.getElementById('exampleModalLabelBody').innerHTML = 'Llegaste al final y se acabo 🥺😞👌';
+        $('#exampleModal').modal('show');
+    }
+    
+    // if (aciertos == 5 || errores == 3) {
+        
+    //     $('#exampleModal').modal('show');
+    //     // while (aciertos == 5 || errores == 3) {
+    //     // }
+    // }
+
     $.ajax({
         type: 'POST',
         url: 'http://localhost/quiz/src/php/getPregunta.php',
@@ -33,11 +54,18 @@ function getPregunta(id) {
             var pregunta = JSON.parse(response);
             // console.log(pregunta);
 
+            while (pregunta.length == 0) {
+
+                idpregunta = Math.floor(Math.random() * (conteo['conteo'])) + 1;
+
+                getPregunta(idpregunta, conteo)
+            }
+
             document.getElementById("pregunta").innerHTML = pregunta['pregunta'];
             let imagen = document.getElementById('imagen');
             imagen.setAttribute('src', 'src/img/' + pregunta['rutaImagen']);
 
-            getRespuesta(id);
+            getRespuesta(pregunta['id']);
         }
     });
 }
@@ -51,19 +79,31 @@ function getRespuesta(id) {
             idpregunta: id
         },
         success: function (response) {
-            // console.log(response);
             var respuesta = JSON.parse(response);
+            // console.log(respuesta);
 
-            var res1 = document.getElementById("respuesta1").innerHTML = respuesta[0]['respuesta'];
-            var res2 = document.getElementById("respuesta2").innerHTML = respuesta[1]['respuesta'];
-            var res3 = document.getElementById("respuesta3").innerHTML = respuesta[2]['respuesta'];
-            var res4 = document.getElementById("respuesta4").innerHTML = respuesta[3]['respuesta'];
+            document.getElementById("respuesta1").innerHTML = respuesta[0]['respuesta'];
+            document.getElementById("label1").innerHTML = respuesta[0]['id'];
+
+            document.getElementById("respuesta2").innerHTML = respuesta[1]['respuesta'];
+            document.getElementById("label2").innerHTML = respuesta[1]['id'];
+
+            document.getElementById("respuesta3").innerHTML = respuesta[2]['respuesta'];
+            document.getElementById("label3").innerHTML = respuesta[2]['id'];
+
+            document.getElementById("respuesta4").innerHTML = respuesta[3]['respuesta'];
+            document.getElementById("label4").innerHTML = respuesta[3]['id'];
+
+            document.getElementById("score").innerHTML = 'Score: ' + score + "&nbsp&nbsp&nbsp&nbsp&nbsp Aciertos: " + aciertos + '&nbsp&nbsp&nbsp&nbsp&nbsp Fallos: ' + errores;
+            document.getElementById("numPregunta").innerHTML = "Pregunta " + contador;
+
         }
     });
 }
 
 function answered(id) {
-    if (contador < 8 || errores < 3 || aciertos < 5) {
+    
+    if (contador < 8 && errores < 3 && aciertos < 5) {
         var value = document.getElementById(id).innerHTML;
         // console.log(value);
         $.ajax({
@@ -74,42 +114,16 @@ function answered(id) {
                 id: value
             },
             success: function (response) {
-                console.log(response);
-                var respuesta = JSON.parse(response);
+                // console.log(response);
+                var pregunta = JSON.parse(response);
                 // console.log(pregunta);
 
-                if (respuesta.length == 0) {
+                if (pregunta.length == 0) {
                     contador++;
                     errores++;
-                    console.log('RESPUESTA ERRONEA');
+                    // console.log('RESPUESTA ERRONEA');
 
-                    $.ajax({
-                        type: 'POST',
-                        url: 'http://localhost/quiz/src/php/getResp.php',
-                        data:
-                        {
-                            idpregunta: value
-                        },
-                        success: function (response) {
-                            var respuesta = JSON.parse(response);
-                            // console.log(respuesta);
-                            var idres = respuesta['idpregunta'];
-
-                            console.log(idres);
-                            $.ajax({
-                                type: 'POST',
-                                url: 'http://localhost/quiz/src/php/update.php',
-                                data:
-                                {
-                                    id: idres
-                                },
-                                success: function (response) {
-                                    // var pregunta = JSON.parse(response);
-                                    console.log(response);
-                                }
-                            });
-                        }
-                    });
+                    update(0, value);
 
                     $.ajax({
                         url: 'http://localhost/quiz/src/php/contar.php',
@@ -120,101 +134,17 @@ function answered(id) {
 
                             var idpregunta = Math.floor(Math.random() * (conteo['conteo'])) + 1;
 
-                            // console.log(idpregunta);
-                            // document.getElementById("numPregunta").innerHTML = "Pregunta " + contador;
-
-                            $.ajax({
-                                type: 'POST',
-                                url: 'http://localhost/quiz/src/php/getPregunta.php',
-                                data:
-                                {
-                                    idpregunta: idpregunta
-                                },
-                                success: function (response) {
-                                    // console.log(response);
-                                    var pregunta = JSON.parse(response);
-                                    while (pregunta.length == 0) {
-
-                                        idpregunta = Math.floor(Math.random() * (conteo['conteo'])) + 1;
-
-                                        $.ajax({
-                                            type: 'POST',
-                                            url: 'http://localhost/quiz/src/php/getPregunta.php',
-                                            data:
-                                            {
-                                                idpregunta: idpregunta
-                                            },
-                                            success: function (response) {
-                                                pregunta = JSON.parse(response);
-                                            }
-                                        });
-                                    }
-                                    // console.log(pregunta);
-
-                                    document.getElementById("numPregunta").innerHTML = "Pregunta " + contador;
-                                    document.getElementById("pregunta").innerHTML = pregunta['pregunta'];
-                                    let imagen = document.getElementById('imagen');
-                                    imagen.setAttribute('src', 'src/img/' + pregunta['rutaImagen']);
-
-                                    $.ajax({
-                                        type: 'POST',
-                                        url: 'http://localhost/quiz/src/php/getRespuesta.php',
-                                        data:
-                                        {
-                                            idpregunta: idpregunta
-                                        },
-                                        success: function (response) {
-                                            // console.log(response);
-                                            var respuesta = JSON.parse(response);
-                                            // console.log(pregunta);
-                                            // console.log(respuesta[0]);
-                                            // console.log(respuesta[1]);
-                                            // console.log(respuesta[2]);
-                                            // console.log(respuesta[3]);
-
-                                            document.getElementById("respuesta1").innerHTML = respuesta[0]['respuesta'];
-                                            document.getElementById("respuesta2").innerHTML = respuesta[1]['respuesta'];
-                                            document.getElementById("respuesta3").innerHTML = respuesta[2]['respuesta'];
-                                            document.getElementById("respuesta4").innerHTML = respuesta[3]['respuesta'];
-                                        }
-                                    });
-                                }
-                            });
+                            getPregunta(idpregunta, conteo);
                         }
                     });
                 }
                 else {
+                    console.log('RESPUESTA CORRECTA')
                     contador++;
                     aciertos++;
                     score = score + 150;
 
-                    $.ajax({
-                        type: 'POST',
-                        url: 'http://localhost/quiz/src/php/getResp.php',
-                        data:
-                        {
-                            idpregunta: value
-                        },
-                        success: function (response) {
-                            var respuesta = JSON.parse(response);
-                            // console.log(respuesta);
-                            var idres = respuesta['idpregunta'];
-
-                            console.log(idres);
-                            $.ajax({
-                                type: 'POST',
-                                url: 'http://localhost/quiz/src/php/update.php',
-                                data:
-                                {
-                                    id: idres
-                                },
-                                success: function (response) {
-                                    // var pregunta = JSON.parse(response);
-                                    console.log(response);
-                                }
-                            });
-                        }
-                    });
+                    update(pregunta['id']);
 
                     $.ajax({
                         url: 'http://localhost/quiz/src/php/contar.php',
@@ -225,77 +155,43 @@ function answered(id) {
 
                             var idpregunta = Math.floor(Math.random() * (conteo['conteo'])) + 1;
 
-                            // console.log(idpregunta);
-                            // document.getElementById("numPregunta").innerHTML = "Pregunta " + contador;
-
-                            $.ajax({
-                                type: 'POST',
-                                url: 'http://localhost/quiz/src/php/getPregunta.php',
-                                data:
-                                {
-                                    idpregunta: idpregunta
-                                },
-                                success: function (response) {
-                                    // console.log(response);
-                                    var pregunta = JSON.parse(response);
-                                    while (pregunta.length == 0) {
-
-                                        idpregunta = Math.floor(Math.random() * (conteo['conteo'])) + 1;
-
-                                        $.ajax({
-                                            type: 'POST',
-                                            url: 'http://localhost/quiz/src/php/getPregunta.php',
-                                            data:
-                                            {
-                                                idpregunta: idpregunta
-                                            },
-                                            success: function (response) {
-                                                pregunta = JSON.parse(response);
-                                            }
-                                        });
-                                    }
-                                    // console.log(pregunta);
-
-                                    document.getElementById("numPregunta").innerHTML = "Pregunta " + contador;
-                                    document.getElementById("pregunta").innerHTML = pregunta['pregunta'];
-                                    let imagen = document.getElementById('imagen');
-                                    imagen.setAttribute('src', 'src/img/' + pregunta['rutaImagen']);
-
-                                    $.ajax({
-                                        type: 'POST',
-                                        url: 'http://localhost/quiz/src/php/getRespuesta.php',
-                                        data:
-                                        {
-                                            idpregunta: idpregunta
-                                        },
-                                        success: function (response) {
-                                            // console.log(response);
-                                            var respuesta = JSON.parse(response);
-                                            // console.log(pregunta);
-                                            // console.log(respuesta[0]);
-                                            // console.log(respuesta[1]);
-                                            // console.log(respuesta[2]);
-                                            // console.log(respuesta[3]);
-
-                                            document.getElementById("respuesta1").innerHTML = respuesta[0]['respuesta'];
-                                            document.getElementById("respuesta2").innerHTML = respuesta[1]['respuesta'];
-                                            document.getElementById("respuesta3").innerHTML = respuesta[2]['respuesta'];
-                                            document.getElementById("respuesta4").innerHTML = respuesta[3]['respuesta'];
-                                        }
-                                    });
-                                }
-                            });
+                            getPregunta(idpregunta, conteo);
                         }
                     });
                 }
             }
         });
-    } else if (aciertos >= 5) {
-        console.log('YA GANASTE HIJOEPUTA');
     }
-    else if (errores >= 3) {
-        console.log('YA PERDISTE HIJOEPUTA');
-    }
+}
+
+function update(id) {
+    $.ajax({
+        type: 'POST',
+        url: 'http://localhost/quiz/src/php/update.php',
+        data:
+        {
+            id: id
+        },
+        success: function (response) {
+            // console.log(response);
+            // var pregunta = JSON.parse(response);
+        }
+    });
+}
+
+function update(id, idrespuesta) {
+    $.ajax({
+        type: 'POST',
+        url: 'http://localhost/quiz/src/php/update.php',
+        data:
+        {
+            idrespuesta: idrespuesta
+        },
+        success: function (response) {
+            // console.log(response);
+            // var pregunta = JSON.parse(response);
+        }
+    });
 }
 // ---------- EJECUCION
 $(document).ready(function () {
