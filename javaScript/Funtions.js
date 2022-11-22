@@ -20,6 +20,12 @@ function contar() {
 
 function reset() {
     console.log("REINICIO");
+    contador = 1;
+    errores = 0;
+    aciertos = 0;
+    score = 0;
+    document.getElementById("score").innerHTML = 'Score: ' + score + "&nbsp&nbsp&nbsp&nbsp&nbsp Aciertos: " + aciertos + '&nbsp&nbsp&nbsp&nbsp&nbsp Fallos: ' + errores;
+    document.getElementById("numPregunta").innerHTML = "Pregunta " + contador;
     // $.ajax({
     //     url: 'http://localhost/quiz/src/php/reset.php',
     //     type: 'GET',
@@ -170,34 +176,34 @@ function answered(id) {
 }
 
 function update(id) {
-    console.log("update");
-    $.ajax({
-        type: 'POST',
-        url: 'http://localhost/quiz/src/php/update.php',
-        data:
-        {
-            id: id
-        },
-        success: function (response) {
-            console.log(response);
-            // var pregunta = JSON.parse(response);
-        }
-    });
+    // console.log("update");
+    // $.ajax({
+    //     type: 'POST',
+    //     url: 'http://localhost/quiz/src/php/update.php',
+    //     data:
+    //     {
+    //         id: id
+    //     },
+    //     success: function (response) {
+    //         console.log(response);
+    //         // var pregunta = JSON.parse(response);
+    //     }
+    // });
 }
 
 function update(id, idrespuesta) {
-    $.ajax({
-        type: 'POST',
-        url: 'http://localhost/quiz/src/php/update.php',
-        data:
-        {
-            idrespuesta: idrespuesta
-        },
-        success: function (response) {
-            // console.log(response);
-            // var pregunta = JSON.parse(response);
-        }
-    });
+    // $.ajax({
+    //     type: 'POST',
+    //     url: 'http://localhost/quiz/src/php/update.php',
+    //     data:
+    //     {
+    //         idrespuesta: idrespuesta
+    //     },
+    //     success: function (response) {
+    //         // console.log(response);
+    //         // var pregunta = JSON.parse(response);
+    //     }
+    // });
 }
 // ---------- EJECUCION
 $(document).ready(function () {
