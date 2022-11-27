@@ -7,7 +7,7 @@
     if (isset($_POST['id'])) {
         $id = $_POST['id'];
 
-        $sql = "SELECT * FROM `pregunta` WHERE idrespuesta = (SELECT id FROM `respuesta` WHERE respuesta = '{$id}')";
+        $sql = "SELECT * FROM `pregunta` WHERE idrespuesta = (SELECT id FROM `respuesta` WHERE id = '{$id}')";
 
         // $sql = "UPDATE pregunta SET answered = 1 WHERE id = 1";
 
