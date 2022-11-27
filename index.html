@@ -144,6 +144,15 @@
       integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
       crossorigin="anonymous"></script>
   <script src="javaScript/Funtions.js"></script>
+  <script src="javaScript/conexionArduino.js"></script>
+  <script>
+    var socket = io();
+    socket.on('respuesta', function(msg) {
+      console.log(msg);
+      // socket.emit('chat message', "okokok");
+      // document.getElementById('texto').innerHTML = msg;
+    });
+  </script>
 </body>
 
 </html>
