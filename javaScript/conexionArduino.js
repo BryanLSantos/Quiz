@@ -1,7 +1,7 @@
 //Mensaje que se enviara a la pagina
 let mensaje = "";
 //libreria de conexion de arduino
-var five = require("johnny-five");
+var five = require("johnny-five")
 //Definicion de la placa y boton en Johnny Five
 board, button;
 //Objeto de placa para Johny five
