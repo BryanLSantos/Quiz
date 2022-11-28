@@ -1,31 +1,59 @@
+/**
+ * Iniciacion de variables.
+*/
 var contador = 1;
 var errores = 0;
 var aciertos = 0;
 var score = 0;
 
+/**
+ * Funcion para generar un numero entre el numero de preguntas existentes en la base de datos.
+ */
 function contar() {
+    /**
+     * Cuenta las preguntas de la Base de datos.
+     */
     $.ajax({
-
         url: 'http://localhost/quiz/src/php/contar.php',
         type: 'GET',
         success: function (response) {
+            /**
+             * Retorna el numero de preguntas existentes.
+             */
             var conteo = JSON.parse(response);
 
+            /**
+             * Genera un numero aleatorio en el rango de 1 y el maximo de preguntas existentes.
+             */
             var idpregunta = Math.floor(Math.random() * (conteo['conteo'])) + 1;
 
+            /**
+             * Llama a la funcion getPregunta.
+             */
             getPregunta(idpregunta, conteo);
         }
     });
 }
 
+/**
+ * Funcion para reiniciar el Quiz.
+ */
 function reset() {
     console.log("REINICIO");
+
+    /**
+     * Reinicializa las variables.
+     */
     contador = 1;
     errores = 0;
     aciertos = 0;
     score = 0;
     document.getElementById("score").innerHTML = 'Score: ' + score + "&nbsp&nbsp&nbsp&nbsp&nbsp Aciertos: " + aciertos + '&nbsp&nbsp&nbsp&nbsp&nbsp Fallos: ' + errores;
     document.getElementById("numPregunta").innerHTML = "Pregunta " + contador;
+
+    /**
+     * Reinicia la Base de Datos.
+     */
     // $.ajax({
     //     url: 'http://localhost/quiz/src/php/reset.php',
     //     type: 'GET',
@@ -35,8 +63,16 @@ function reset() {
     // });
 }
 
+/**
+ * Funcion para obtener una pregunta.
+ * @param {int} id 
+ * @param {int} conteo 
+ */
 function getPregunta(id, conteo) {
 
+    /**
+     * Si Alguna de las variables llega a su maximo muestra el modal emergente.
+     */
     if (aciertos == 5) {
         document.getElementById('exampleModalLabel').innerHTML = 'FELICIDADES';
         document.getElementById('exampleModalLabelBody').innerHTML = 'Felicidades, ganaste el Quiz, eres un Genio 😎👍🔥 \n YOU SCORE: ' + score;
@@ -53,18 +89,25 @@ function getPregunta(id, conteo) {
         $('#exampleModal').modal('show');
     }
 
+    /**
+     * Obtiene una pregunta
+     */
     $.ajax({
         type: 'POST',
         url: 'http://localhost/quiz/src/php/getPregunta.php',
+        /**
+         * ID de pregunta a obtener
+         */
         data:
         {
             idpregunta: id
         },
         success: function (response) {
-            // console.log(response);
             var pregunta = JSON.parse(response);
-            // console.log(pregunta);
 
+            /**
+             * Si la pregunta no existe (El array es null) vuelve a llamar a la funcion.
+             */
             while (pregunta.length == 0) {
 
                 idpregunta = Math.floor(Math.random() * (conteo['conteo'])) + 1;
@@ -72,27 +115,42 @@ function getPregunta(id, conteo) {
                 getPregunta(idpregunta, conteo)
             }
 
+            /**
+             * Sustituye los valores del arreglo dentro del documento.
+             */
             document.getElementById("pregunta").innerHTML = pregunta['pregunta'];
             let imagen = document.getElementById('imagen');
             imagen.setAttribute('src', 'src/img/' + pregunta['rutaImagen']);
 
+            /**
+             * Obtiene las respuestas de la pregunta.
+             */
             getRespuesta(pregunta['id']);
         }
     });
 }
 
+/**
+ * Funcion para obtener respuestas.
+ * @param {int} id 
+ */
 function getRespuesta(id) {
     $.ajax({
         type: 'POST',
         url: 'http://localhost/quiz/src/php/getRespuesta.php',
+        /**
+         * ID de pregunta para obtener respuestas
+         */
         data:
         {
             idpregunta: id
         },
         success: function (response) {
             var respuesta = JSON.parse(response);
-            // console.log(respuesta);
 
+            /**
+             * Sustituye todas las respuestas obtenidas dentro del documento.
+             */
             document.getElementById("respuesta1").innerHTML = respuesta[0]['respuesta'];
             document.getElementById("label1").innerHTML = respuesta[0]['id'];
 
@@ -112,30 +170,49 @@ function getRespuesta(id) {
     });
 }
 
+/**
+ * Actualiza preguntas respondidas.
+ * @param {int} id 
+ */
 function answered(id) {
-    
+    /**
+     * Limite para obtener preguntas.
+     */
     if (contador < 8 && errores < 3 && aciertos < 5) {
         var value = document.getElementById(id).innerHTML;
-        // console.log(value);
+        /**
+         * Actualiza bases de datos.
+         */
         $.ajax({
             type: 'POST',
             url: 'http://localhost/quiz/src/php/answer.php',
+            /**
+             * ID de pregunta para actualizar
+             */
             data:
             {
                 id: value
             },
             success: function (response) {
-                // console.log(response);
                 var pregunta = JSON.parse(response);
-                // console.log(pregunta);
-
+                /**
+                 * Si la respuesta es erronea actualiza y genera nueva pregunta.
+                 */
                 if (pregunta.length == 0) {
+                    /**
+                     * Aumenta contadores.
+                     */
                     contador++;
                     errores++;
-                    // console.log('RESPUESTA ERRONEA');
 
+                    /**
+                     * Actualiza el estado de las preguntas.
+                     */
                     update(0, value);
 
+                    /**
+                     * Obtiene nueva pregunta.
+                     */
                     $.ajax({
                         url: 'http://localhost/quiz/src/php/contar.php',
                         type: 'GET',
@@ -149,14 +226,26 @@ function answered(id) {
                         }
                     });
                 }
+                /**
+                 * Si la respuesta es correcta actualiza y genera nueva pregunta.
+                 */
                 else {
+                    /**
+                     * Aumenta contadores.
+                     */
                     let id = pregunta['id'];
                     contador++;
                     aciertos++;
                     score = score + 150;
 
+                    /**
+                     * Actualiza estado de preguntas.
+                     */
                     update(id);
 
+                    /**
+                     * Obtienen pergunta nueva.
+                     */
                     $.ajax({
                         url: 'http://localhost/quiz/src/php/contar.php',
                         type: 'GET',
@@ -175,6 +264,10 @@ function answered(id) {
     }
 }
 
+/**
+ * Funcion para actualizar las preguntas (Correctas).
+ * @param {int} id 
+ */
 function update(id) {
     // console.log("update");
     // $.ajax({
@@ -191,6 +284,11 @@ function update(id) {
     // });
 }
 
+/**
+ * Funcion para actualizar las preguntas (Incorrectas).
+ * @param {int} id 
+ * @param {int} idrespuesta 
+ */
 function update(id, idrespuesta) {
     // $.ajax({
     //     type: 'POST',
@@ -207,7 +305,6 @@ function update(id, idrespuesta) {
 }
 // ---------- EJECUCION
 $(document).ready(function () {
-    // console.log( "ready!" );
     document.getElementById("score").innerHTML = 'Score: ' + score;
     contar();
 });

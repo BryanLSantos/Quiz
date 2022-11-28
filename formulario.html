@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Referencia de recursos usados -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
     <a target="_blank" href="https://icons8.com/icon/13461/variable"></a>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -11,13 +13,18 @@
     <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed&display=swap" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.3.1.js" integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60=" crossorigin="anonymous"></script>
+    <!-- Referencia de recursos usados -->
+    
+    <!-- Estilo default del body del documento -->
     <style type="text/css">
         body {  font-family: 'Lobster', cursive; color: white; background-color: #e6d5d2;}
     </style>
-    <title>Form</title>
+    <!-- Estilo default del body del documento -->
+
+    <title>Formulario</title>
 </head>
 <body>
-    <!-- NAV -->
+    <!-- Barra principal con logotipo y boton de reinicio de formulario -->
     <div class="">
         <nav class="navbar navbar-dark" style="background-color: #1C1A24;">
             <div class="container-fluid">
@@ -26,73 +33,101 @@
                         class="d-inline-block align-text-top" alt="logo.png" />
                     Variably
                 </a>
+                <!-- Boton de Reinicio de formulario -->
                 <form class="d-flex">
                     <button class="btn btn-outline-success" type="reset">Reset</button>
                 </form>
+                <!-- Boton de Reinicio de formulario -->
             </div>
         </nav>
     </div>
-    <!-- NAV -->
+    <!-- Barra principal con logotipo y boton de reinicio de formulario -->
 
-    <!-- FUNCIONES -->
-<script type="text/javascript">
-    function valPregunta(params) {
-        if (params.value == '') {
-            alert('Introduce una Pregunta');
+    <!-- Funciones  -->
+    <script type="text/javascript">
+        /** 
+         * Valida la pregunta para evitar que se ingresen valores nulos
+        */
+        function valPregunta(params) {
+            if (params.value == '') {
+                alert('Introduce una Pregunta');
+            }
         }
-    }
 
-    function valRespuesta(params) {
-        if (params.value == '') {
-            alert('Falta escribir una Respuesta');
+        /**
+         * Valida que la entrada de respuesta no sea nula
+        */
+        function valRespuesta(params) {
+            if (params.value == '') {
+                alert('Falta escribir una Respuesta');
+            }
         }
-    }
 
-    $(document).ready(function()
-    {
-        $('#ingreso').submit(function(e)
+        /** 
+         * Cuando el documento cargue se activa la funcion
+        */
+        $(document).ready(function()
         {
-            e.preventDefault();
-            
-            var pregunta = document.getElementById("pregunta").value;
-            var respuesta1 = document.getElementById("respuesta1").value;
-            var respuesta2 = document.getElementById("respuesta2").value;
-            var respuesta3 = document.getElementById("respuesta3").value;
-            var respuesta4 = document.getElementById("respuesta4").value;
-            var img = document.getElementById("imagen").value;
-            var ruta = img.split('\\');
-            var imagen = ruta[ruta.length -1];
-            var res = $('input[name="ans"]:checked').val();
+            /** 
+             * Cuando se envie el formulario se activa la funcion
+            */
+            $('#ingreso').submit(function(e)
+            {
+                /** 
+                 * Evita que la pagina se actualice
+                */
+                e.preventDefault();
+                
+                /**
+                 * Toma cada valor de cada elemento dependiendo del id, y lo almacena en una variable
+                */
+                var pregunta = document.getElementById("pregunta").value;
+                var respuesta1 = document.getElementById("respuesta1").value;
+                var respuesta2 = document.getElementById("respuesta2").value;
+                var respuesta3 = document.getElementById("respuesta3").value;
+                var respuesta4 = document.getElementById("respuesta4").value;
 
-            // console.log(pregunta);
-            // console.log(respuesta1);
-            // console.log(respuesta2);
-            // console.log(respuesta3);
-            // console.log(respuesta4);
-            // console.log(imagen);
-            // console.log(res);
+                /**
+                 * Almacena el nombre de la imagen
+                */
+                var img = document.getElementById("imagen").value;
+                var ruta = img.split('\\');
+                var imagen = ruta[ruta.length -1];
 
-            $.ajax({
-                type: "POST",
-                url: './src/php/ingreso.php',
-                data: {
-                    pregunta: pregunta,
-                    respuesta1: respuesta1,
-                    respuesta2: respuesta2,
-                    respuesta3: respuesta3,
-                    respuesta4: respuesta4,
-                    imagen: imagen,
-                    res: res
-                },
-                success: function(response){
-                    console.log(response);
-                    window.location = 'formulario.html';
-                }
+                /**
+                 * Toma el valor, solo del radio que esta marcado
+                */
+                var res = $('input[name="ans"]:checked').val();
+
+                /**
+                 * Con ajax envia los datos guardados al archivo php
+                 * para ingresar los datos a la base de datos
+                */
+                $.ajax({
+                    type: "POST",
+                    url: './src/php/ingreso.php',
+                    data: {
+                        pregunta: pregunta,
+                        respuesta1: respuesta1,
+                        respuesta2: respuesta2,
+                        respuesta3: respuesta3,
+                        respuesta4: respuesta4,
+                        imagen: imagen,
+                        res: res
+                    },
+                    /**
+                     * El archivo restorna el resultado y ciando termina,
+                     * imprime el estado del query y reinicia la pagina
+                    */
+                    success: function(response){
+                        console.log(response);
+                        window.location = 'formulario.html';
+                    }
+                });
             });
         });
-    });
-</script>
-    <!-- FUNCIONES -->
+    </script>
+    <!-- Funciones  -->
     <!-- FORM -->
     <form id="ingreso" method="post">
         <div class="container-md" style="background-color: #a8a8aa; padding: 3rem; margin-top: 2rem; border-radius: 1rem;">
@@ -101,7 +136,9 @@
             </div>
             <div class="container mb-3">
                 <label for="pregunta" class="form-label" style="padding-bottom: 1.5rem; font-size: 22px; color: black;">Ingresar nueva pregunta</label>
+                <!-- Entrada de pregunta, acepta cadenas de texto -->
                 <input type="text" class="form-control" id="pregunta" name="pregunta" placeholder="Nueva Pregunta" onblur="valPregunta(this)">
+                <!-- Entrada de pregunta, acepta cadenas de texto -->
             </div>
             <div class="container mb-3">
                 <div>
@@ -112,26 +149,36 @@
                 </div>
                 <div class="row">
                     <div class="col">
+                        <!-- Entrada de respuesta, junto con un boton radio para marcar si es la correcta -->
                         <input class="form-check-input" type="radio" name="ans" id="ans" value="1">
                         <input type="text" class="form-control" id="respuesta1" name="respuesta1" placeholder="Respuesta 1" onblur="valRespuesta(this)">
+                        <!-- Entrada de respuesta, junto con un boton radio para marcar si es la correcta -->
                     </div>
                     <div class="col">
+                        <!-- Entrada de respuesta, junto con un boton radio para marcar si es la correcta -->
                         <input class="form-check-input" type="radio" name="ans" id="ans" value="2">
                         <input type="text" class="form-control" id="respuesta2" name="respuesta2" placeholder="Respuesta 2" onblur="valRespuesta(this)">
+                        <!-- Entrada de respuesta, junto con un boton radio para marcar si es la correcta -->
                     </div>
                     <div class="col">
+                        <!-- Entrada de respuesta, junto con un boton radio para marcar si es la correcta -->
                         <input class="form-check-input" type="radio" name="ans" id="ans" value="3">
                         <input type="text" class="form-control" id="respuesta3" name="respuesta3" placeholder="Respuesta 3" onblur="valRespuesta(this)">
+                        <!-- Entrada de respuesta, junto con un boton radio para marcar si es la correcta -->
                     </div>
                     <div class="col">
+                        <!-- Entrada de respuesta, junto con un boton radio para marcar si es la correcta -->
                         <input class="form-check-input" type="radio" name="ans" id="ans" value="4">
                         <input type="text" class="form-control" id="respuesta4" name="respuesta4" placeholder="Respuesta 4" onblur="valRespuesta(this)">
+                        <!-- Entrada de respuesta, junto con un boton radio para marcar si es la correcta -->
                     </div>
                   </div>
             </div>
             <div class="container mb-3">
                 <label for="imagen" class="form-label" style="font-size: 22px; color: black;">Imagen</label>
+                <!-- Entrada de ruta de Imagen -->
                 <input class="form-control container-md" type="file" id="imagen" name="imagen" style="width: 40%;">
+                <!-- Entrada de ruta de Imagen -->
             </div>
             <div class="container mb-3" style="padding-top: 1rem;">
                 <div class="d-grid gap-2 col-6 mx-auto">
@@ -140,7 +187,6 @@
             </div>
         </div>
     </form>
-
     <!-- FORM -->
 </body>
 </html>
