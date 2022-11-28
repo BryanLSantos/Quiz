@@ -1,5 +1,8 @@
 <?php
     header('Access-Control-Allow-Origin: *');
+    /**
+     * Direccion de la base de datos.
+     */
     $conexion = @mysqli_connect(
         'localhost',
         'root', //Nombre de Usuario de db

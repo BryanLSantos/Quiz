@@ -1,5 +1,8 @@
 <?php
     header('Access-Control-Allow-Origin: *');
+    /**
+     * Direccion de la base de datos.
+     */
     include_once __DIR__ . "/database.php";
 
     $data = array(
@@ -32,6 +35,9 @@
         'message' => 'La Insercion Fallo'
     );
 
+    /**
+     * Si se envia la variable pregunta se activa el if.
+     */
     if (isset($_POST['pregunta'])) {
         $pregunta = $_POST['pregunta'];
         $respuesta1 = $_POST['respuesta1'];
@@ -41,8 +47,14 @@
         $imagen = $_POST['imagen'];
         $res = $_POST['res'];
 
+        /**
+         * Query a Utilizar
+         */
         $sql = "INSERT INTO pregunta VALUES (NULL, '{$pregunta}', NULL, 0, '{$imagen}');";
 
+        /**
+         * Querys a Utilizar
+         */
         $sql2_1 = "INSERT INTO respuesta VALUES (NULL, '{$respuesta1}', (SELECT id FROM pregunta WHERE id = (SELECT MAX(id) from pregunta)));";
         $sql2_2 = "INSERT INTO respuesta VALUES (NULL, '{$respuesta2}', (SELECT id FROM pregunta WHERE id = (SELECT MAX(id) from pregunta)));";
         $sql2_3 = "INSERT INTO respuesta VALUES (NULL, '{$respuesta3}', (SELECT id FROM pregunta WHERE id = (SELECT MAX(id) from pregunta)));";
@@ -109,6 +121,9 @@
         }
         $conexion->close();
     
+        /**
+         * Devuelve un array tipo json al documento.
+         */
         echo json_encode($data3);
     }
 ?>
