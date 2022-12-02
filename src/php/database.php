@@ -3,7 +3,7 @@
     $conexion = @mysqli_connect(
         'localhost',
         'root', //Nombre de Usuario de db
-        '12345678a', //Contraseña de usuario
+        'Elkomander', //Contraseña de usuario
         'quiz' //Nombre de db
     );
 

@@ -4,15 +4,20 @@
     <title>Varialy</title>    
     <meta charset="UTF-8">
     <meta name="title" content="Título de la WEB">
-    <meta name="description" content="Descripción de la WEB">        
+    <meta name="description" content="Descripción de la WEB">  
+
+    <!-- Referencia de recursos usados -->      
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
     <a target="_blank" href="https://icons8.com/icon/13461/variable"></a>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
+    <!-- Referencia de recursos usados -->
+
+    <!-- Estilo default del body en el documento y estilo de los elementos con el id "divpregunta" -->
     <style type="text/css">
         body { font-family: 'Lobster', cursive; color: white; background-color: #736868;
-}
+        }
         #divpregunta{
             background-image: url("src/img/fondomath.png");   
             background-repeat: no-repeat;
@@ -20,10 +25,225 @@
             background-position: center;
             background-size: 1450px,7730px;
         }
-      </style>
+    </style>
+    <!-- Estilo default del body en el documento y estilo de los elementos con el id "divpregunta" -->
+      
       <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-      <script src="javaScript/Funtions.js"></script>
-      <script src="/socket.io/socket.io.js"></script>
+      <script src="https://cdn.socket.io/3.1.3/socket.io.min.js" integrity="sha384-cPwlPLvBTa3sKAgddT6krw0cJat7egBga3DJepJyrLl4Q9/5WLra3rrnMcyTyOnh" crossorigin="anonymous"></script>
+      <script>
+        var socket = io("http://localhost:3000");
+        let contador = 1;
+        let errores = 0;
+        let aciertos = 0;
+        let score = 0;
+
+        socket.on('respuesta', function(msg) {
+          console.log(msg);
+
+          if (contador < 8 && errores < 3 && aciertos < 5) {
+            if(msg=="boton1"){
+              var value = document.getElementById("label1").innerHTML;
+              console.log("valor que obtuvo del boton " + value);
+              socket.emit('answer', value); 
+            }
+            else if(msg=="boton2"){
+              var value = document.getElementById("label2").innerHTML;
+              console.log("valor que obtuvo del boton " + value);
+              socket.emit('answer', value); 
+            }
+            else if(msg=="boton3"){
+              var value = document.getElementById("label3").innerHTML;
+              console.log("valor que obtuvo del boton " + value);
+              socket.emit('answer', value); 
+            }
+            else if(msg=="boton4"){
+              var value = document.getElementById("label4").innerHTML;
+              console.log("valor que obtuvo del boton " + value);
+              socket.emit('answer', value); 
+            }
+            else
+            {
+              console.log("fallaste :(");
+            }
+        }
+        });
+       
+    
+        function contar(){
+          socket.emit('contar', 0);
+        }
+
+        socket.on('contarR', function(msg) {
+          console.log("Mensaje que el server regreso contarR: " + msg);
+          var idpregunta = Math.floor(Math.random() * (msg)) + 1;
+          getPregunta(idpregunta, msg);
+        });
+        
+        function reset() {
+            console.log("REINICIO");
+            contador = 1;
+            errores = 0;
+            aciertos = 0;
+            score = 0;
+            document.getElementById("score").innerHTML = 'Score: ' + score + "&nbsp&nbsp&nbsp&nbsp&nbsp Aciertos: " + aciertos + '&nbsp&nbsp&nbsp&nbsp&nbsp Fallos: ' + errores;
+            document.getElementById("numPregunta").innerHTML = "Pregunta " + contador;
+        }
+        
+        let idpre;
+        let cont;
+        let pasarF = false;
+        function getPregunta(id, conteo) {
+          if (aciertos == 5) {
+              console.log("ganaste!!!");
+              document.getElementById('exampleModalLabel').innerHTML = 'FELICIDADES';
+              document.getElementById('exampleModalLabelBody').innerHTML = 'Felicidades, ganaste el Quiz, eres un Genio 😎👍🔥 \n YOU SCORE: ' + score;
+              $('#exampleModal').modal('show');
+          }
+          else if (errores == 3) {
+           
+              document.getElementById('exampleModalLabel').innerHTML = 'LO SIENTO';
+              document.getElementById('exampleModalLabelBody').innerHTML = 'No eres tan listo como esperabamos 🥺😞👌';
+              console.log("LO SIENTO");
+              $('#exampleModal').modal('show');
+          }
+          else if (contador == 8) {
+              console.log("Llegaste al final y se acabo");
+              document.getElementById('exampleModalLabel').innerHTML = 'LO SIENTO';
+              document.getElementById('exampleModalLabelBody').innerHTML = 'Llegaste al final y se acabo 🥺😞👌';
+              $('#exampleModal').modal('show');
+          }
+
+          idpre = id;
+          cont  =  conteo;
+          socket.emit('getPregunta', id); 
+        }
+
+        socket.on('getPreguntaR', (id, pregunta, idrespuesta, answered, rutaImagen) => {
+          console.log("Mensaje que el server regreso preguntaR: " + id + pregunta + 
+          idrespuesta + answered + rutaImagen );
+        
+          while (id.length == 0) {
+            idpre = Math.floor(Math.random() * (cont)) + 1;
+            getPregunta(idpre, cont); //getPregunta(idpregunta, conteo);
+          }
+
+          document.getElementById("pregunta").innerHTML = pregunta;
+          let imagen = document.getElementById('imagen');
+          imagen.setAttribute('src', rutaImagen);
+          getRespuesta(id);
+          }
+        );
+
+        
+        function getRespuesta(id){
+          socket.emit('getRespuesta', id); 
+        }
+
+        socket.on('getRespuestaR', (id, respuesta, idpregunta, id2, respuesta2, idpregunta2, 
+          id3, respuesta3, idpregunta3, id4, respuesta4, idpregunta4 ) => {
+          console.log("Mensaje que el server regreso preguntaR: " + id + ", respuesta1 " + respuesta + ", idpregunta1 " + idpregunta 
+          + ", id2: " + id2 + ", respuesta2: " + respuesta2 + ", idpregunta2: " + idpregunta2  
+          + ", id3: " + id3 + ", respuesta3: " + respuesta3 + ", idpregunta3: " + idpregunta3 
+          + ", id4: " + id4 + ", respuesta4: " + respuesta4 + ", idpregunta4: " + idpregunta4);
+          
+          document.getElementById("respuesta1").innerHTML = respuesta;
+          document.getElementById("label1").innerHTML = id;
+        
+          document.getElementById("respuesta2").innerHTML = respuesta2;
+          document.getElementById("label2").innerHTML = id2;
+        
+          document.getElementById("respuesta3").innerHTML = respuesta3;
+          document.getElementById("label3").innerHTML = id3;
+        
+          document.getElementById("respuesta4").innerHTML = respuesta4;
+          document.getElementById("label4").innerHTML = id4;
+        
+          document.getElementById("score").innerHTML = 'Score: ' + score + "&nbsp&nbsp&nbsp&nbsp&nbsp Aciertos: " + aciertos + '&nbsp&nbsp&nbsp&nbsp&nbsp Fallos: ' + errores;
+          document.getElementById("numPregunta").innerHTML = "Pregunta " + contador;
+        });
+
+        
+        function answered(id) {
+          if (contador < 8 && errores < 3 && aciertos < 5) {
+            var value = document.getElementById(id).innerHTML;
+            console.log("valor que obtuvo del boton " + value);
+            socket.emit('answer', value); 
+          }
+          else
+          {
+            console.log("fallaste :(");
+          }
+        }
+
+        
+        socket.on('getAnswerR', (id, pregunta, idrespuesta, answered, rutaImagen ) => {
+          console.log("Mensaje que el server regreso answer: " + id + pregunta + idrespuesta
+          + answered + rutaImagen);
+          if (id != 'e') {
+            let idpregunta = id;
+            contador++;
+            aciertos++;
+            score = score + 150;
+
+            update(idpregunta);
+            //PASAR OTRA PREGUNTA
+            socket.emit('contar', 0); //socket.emit('contar2', 0);
+            // console.log(conteo);
+          }
+          else{
+            console.log("error repuesta no correcta");
+            contador++;
+            errores++;
+            update(0, id); 
+            socket.emit('contar', 0);  //socket.emit('contar2', 0);
+          }
+        });
+            
+        socket.on('contar2R', (conteo) =>
+        {
+          var idpregunta = Math.floor(Math.random() * (conteo) + 1);
+          getPregunta(idpregunta, conteo);
+        });
+        
+        
+        function update(id) {
+            // console.log("update");
+            // $.ajax({
+            //     type: 'POST',
+            //     url: 'http://localhost/quiz/src/php/update.php',
+            //     data:
+            //     {
+            //         id: id
+            //     },
+            //     success: function (response) {
+            //         console.log(response);
+            //         // var pregunta = JSON.parse(response);
+            //     }
+            // });
+        }
+        
+        function update(id, idrespuesta) {
+            // $.ajax({
+            //     type: 'POST',
+            //     url: 'http://localhost/quiz/src/php/update.php',
+            //     data:
+            //     {
+            //         idrespuesta: idrespuesta
+            //     },
+            //     success: function (response) {
+            //         // console.log(response);
+            //         // var pregunta = JSON.parse(response);
+            //     }
+            // });
+        }
+        // ---------- EJECUCION
+        $(document).ready(function () {
+            // console.log( "ready!" );
+            document.getElementById("score").innerHTML = 'Score: ' + score;
+            contar();
+        });
+        </script>
+   
 </head>  
 
 <head>
@@ -40,13 +260,13 @@
   <link href="https://fonts.googleapis.com/css2?family=Rubik&display=swap" rel="stylesheet">
   <style type="text/css">
     body {
-      font-family: 'Lobster', cursive;
+      font-family: 'Arial bold', cursive;
       color: white;
       background-color: #736868;
     }
 
     #divpregunta {
-      background-image: url("src/img/fondomath.png");
+      background-image: url("https://png.pngtree.com/background/20210712/original/pngtree-hand-drawn-math-education-calculator-ruler-background-picture-image_1178880.jpg");
       background-repeat: no-repeat;
       background-attachment: fixed;
       background-position: center;
@@ -55,8 +275,9 @@
   </style>
 </head>
 
+ 
 <body>
-  <!-- NVAR LOGO-->
+  <!-- Barra principal con logot  ipo y boton de reinicio de formulario -->
   <div class="">
     <nav class="navbar navbar-dark" style="background-color: #1C1A24;">
       <div class="container-fluid">
@@ -65,13 +286,13 @@
             class="d-inline-block align-text-top" alt="logo.png" />
           Variably
         </a>
-        <form class="d-flex">
-          <button class="btn btn-outline-success" type="button" onclick="reset();">Reiniciar</button>
-        </form>
+        <button class="btn btn-outline-success" type="button" onclick="reset();">Reiniciar</button>
       </div>
     </nav>
   </div>
-  <!-- NVAR SCORE -->
+  <!-- Barra principal con logot  ipo y boton de reinicio de formulario -->
+
+  <!-- Barra para mostrar el Score del Quiz -->
   <div class="">
     <nav class="navbar navbar-dark" style="background-color: #363146;">
       <div class="container-fluid">
@@ -81,84 +302,123 @@
       </div>
     </nav>
   </div>
-  <!-- CARD PREGUNTA -->
+  <!-- Barra para mostrar el Score del Quiz -->
+
+  <!-- Sección de pregunta -->
   <div id="divpregunta" class="card mb-0">
     <div class="row g-0" style="margin: 100px 25% 2% 25%;">
       <div class="col-md-6" style="background-color: white; border-radius: 0.3rem; max-height: 80%;">
+        
+        <!-- Imagen de pregunta -->
         <img src="https://www.pngmart.com/files/3/Ice-Cream-Cone-PNG-Photos.png" id="imagen"
           class="img-fluid rounded-start" alt="..." style="height: 100%; width: auto;">
+        <!-- Imagen de pregunta -->
+
       </div>
       <div class="col-md-6" style="max-height: 50%;">
         <div class="card-body align-center">
+
+          <!-- Numero de Pregunta -->
           <h5 id="numPregunta" name="numpregunta" class="card-title text-center" style="font-size: 24px; color: black;">
             Lorem ipsum dolor sit amet.</h5>
+          <!-- Numero de Pregunta -->
+
+          <!-- Titulo de Pregunta -->
           <p id="pregunta" name="pregunta" class="card-text text-center" style="font-size: 20px; color: black;">Lorem
             ipsum dolor, sit amet consectetur adipisicing elit. Ullam eius error magni dolorem aut ex soluta cum tenetur
             cumque similique.</p>
+          <!-- Titulo de Pregunta -->  
+
         </div>
       </div>
     </div>
   </div>
-  <!-- DIV PREGUNTAS -->
+  <!-- Sección de pregunta -->
+
+  <!-- Sección de respuestas -->
   <div style="background-color: #736868;">
     <span class="placeholder col-12" style="background-color: #1C1A24;"></span>
     <div></div>
     <div class="container overflow-hidden" style="color: black; padding: 30px 10px 30px;">
       <div class="row gy-5">
         <div class="col-6" style="margin-top: 35px;">
+          
+          <!-- label con id de respuesta, y boton con respuesta -->
           <label for="respuesta1" id="label1" hidden></label>
           <button id="respuesta1" name="respuesta1" type="button" class="btn btn-light align-center"
             style="width: 100%; height: 100%; border-radius: 0.9rem;" onclick="answered('label1')" data-toggle=""
             data-target="">Lorem ipsum dolor sit amet.</button>
+          <!-- label con id de respuesta, y boton con respuesta -->
+        
         </div>
         <div class="col-6" style="margin-top: 35px;">
+          
+          <!-- label con id de respuesta, y boton con respuesta -->
           <label for="respuesta2" id="label2" hidden></label>
           <button id="respuesta2" name="respuesta2" type="button" class="btn btn-light align-center"
             style="width: 100%; height: 100%; padding: 1rem; border-radius: 0.9rem; " onclick="answered('label2')"
             data-toggle="" data-target="">Lorem ipsum dolor sit amet.</button>
+          <!-- label con id de respuesta, y boton con respuesta -->
+
         </div>
         <div class="col-6" style="margin-top: 35px;">
+          
+          <!-- label con id de respuesta, y boton con respuesta -->
           <label for="respuesta3" id="label3" hidden></label>
           <button id="respuesta3" name="respuesta3" type="button" class="btn btn-light align-center"
             style="width: 100%; height: 100%; padding: 1rem; border-radius: 0.9rem;" onclick="answered('label3')"
             data-toggle="" data-target="">Lorem ipsum dolor sit amet.</button>
+          <!-- label con id de respuesta, y boton con respuesta -->
+
         </div>
         <div class="col-6" style="margin-top: 35px;">
+          
+          <!-- label con id de respuesta, y boton con respuesta -->
           <label for="respuesta4" id="label4" hidden></label>
           <button id="respuesta4" name="respuesta4" type="button" class="btn btn-light align-center"
             style="width: 100%; height: 100%; padding: 1rem; border-radius: 0.9rem;" onclick="answered('label4')"
             data-toggle="" data-target="">Lorem ipsum dolor sit amet.</button>
+          <!-- label con id de respuesta, y boton con respuesta -->
+
         </div>
       </div>
     </div>
 
-    <!-- Modal -->
+    <!-- Modal emergente cuando se finaliza el quiz -->
     <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
       aria-hidden="false">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
+
+          <!-- Header del modal -->
           <div class="modal-header">
             <h5 class="modal-title" id="exampleModalLabel" style="color: black; font-family: Rubik;"></h5>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="false">&times;</span>
             </button>
           </div>
+          <!-- Header del modal -->
+
+          <!-- Body del modal --> 
           <div class="modal-body" id="exampleModalLabelBody" style="color: black; font-family: Rubik;">
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="reset();">Reset</button>
+            <button type="button" id="reset" name="resetbutton" class="btn btn-secondary" data-dismiss="modal" onclick="reset();"
+            data-toggle="" data-target="">Reset</button>
             <!-- <button type="button" class="btn btn-primary">Save changes</button> -->
           </div>
+           <!-- Body del modal -->
         </div>
       </div>
-</div>
+    </div>
+    <!-- Modal emergente cuando se finaliza el quiz -->
+    <!-- Sección de respuestas -->
 </body>  
+  <!-- Recursos Utilizados -->
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+  <!-- Recursos Utilizados -->
 </html>
-<script>
-	var socket = io();
-	socket.on('respuesta', function(msg) {
-		console.log(msg);
-		// socket.emit('chat message', "okokok");
-		// document.getElementById('texto').innerHTML = msg;
-	});
-</script>
